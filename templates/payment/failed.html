@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}Payment Failed | GameSwitchOS{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <div class="glass-card p-4 text-center">
+      <h2 class="text-danger">Payment Failed</h2>
+      {% if reference %}<p class="text-secondary">Reference: <strong>{{ reference }}</strong></p>{% endif %}
+      <p>{{ message or 'We could not confirm your payment.' }}</p>
+      <div class="d-flex justify-content-center gap-2 mt-3">
+        <a class="btn btn-primary" href="{{ url_for('payments.checkout_page') }}">Retry Payment</a>
+        <a class="btn btn-outline-light" href="{{ url_for('payments.payment_history') }}">View Payment History</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

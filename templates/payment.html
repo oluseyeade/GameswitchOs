@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block title %}Payment | GameSwitchOS{% endblock %}
+{% block content %}
+<div class="row g-4">
+  <div class="col-lg-7">
+    <div class="glass-card p-4">
+      <h2 class="mb-3">Payment Checkout</h2>
+      <form class="vstack gap-3" id="paymentForm">
+        <select class="form-select" id="branchSelect" required>
+          <option value="branch1">Branch 1</option>
+          <option value="branch2">Branch 2</option>
+        </select>
+        <select class="form-select" id="gameSelect" required>
+          {% for game in games %}
+          <option value="{{ game.id }}">{{ game.title }} (N{{ game.price_per_hour }}/hr)</option>
+          {% else %}
+          <option value="">No active games available.</option>
+          {% endfor %}
+        </select>
+        <select class="form-select" id="durationSelect" required>
+          <option value="30">30 Minutes</option>
+          <option value="60" selected>60 Minutes</option>
+          <option value="120">120 Minutes</option>
+        </select>
+        <select class="form-select" id="paymentStatus" required>
+          <option value="successful" selected>Payment Outcome: Successful</option>
+          <option value="declined">Payment Outcome: Declined</option>
+        </select>
+        <select class="form-select" id="plugId" required>
+          <option value="station1" selected>Gaming Station 1 (Switch 1)</option>
+          <option value="station2">Gaming Station 2 (Switch 2)</option>
+        </select>
+        <button type="submit" class="btn btn-primary">Complete Checkout</button>
+      </form>
+      <div class="alert mt-3 mb-0 d-none" id="checkoutResult"></div>
+      <div class="alert alert-info mt-3 mb-0">
+        Checkout writes payment records and starts a session only for successful payments.
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-5">
+    <div class="glass-card p-4">
+      <div class="brand-logo mb-3" aria-label="GameSwitchOS">
+        <span class="brand-core">Game</span><span class="brand-accent">SwitchOS</span>
+      </div>
+      <div class="quote-rotator" id="gamingQuoteRotator" aria-live="polite" style="min-height: 8rem; transition: opacity 650ms ease-in-out;">
+        <p class="mb-0 small text-white" id="gamingQuoteText"></p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

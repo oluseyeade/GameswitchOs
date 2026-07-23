@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block title %}Payment Dashboard | GameSwitchOS{% endblock %}
+{% block content %}
+<div class="glass-card p-4">
+  <h2 class="h4 mb-3">Payment Status Dashboard</h2>
+  <p class="text-secondary">Live summary of your latest payment attempts.</p>
+
+  <div class="table-responsive">
+    <table class="table table-dark table-striped align-middle">
+      <thead>
+        <tr>
+          <th>Reference</th>
+          <th>Status</th>
+          <th>Amount</th>
+          <th>Created</th>
+          <th>Track</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in history %}
+        <tr>
+          <td>{{ row.reference }}</td>
+          <td>{{ row.status_label }}</td>
+          <td>N{{ (row.amount_kobo / 100)|round(2) }}</td>
+          <td>{{ row.created_at }}</td>
+          <td><a href="{{ url_for('payments.payment_result', reference=row.reference) }}" class="btn btn-sm btn-outline-info">Open</a></td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="5" class="text-center">No payment records available.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

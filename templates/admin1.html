@@ -1,0 +1,56 @@
+{% extends 'admin_layout.html' %}
+{% block title %}Admin 1 Dashboard | GameSwitchOS{% endblock %}
+{% block admin_content %}
+<section class="mb-4" id="adminDashboardRoot" data-dashboard="branch" data-branch="branch1">
+  <h1>Admin 1 Dashboard</h1>
+  <p class="text-light-emphasis">Branch 1 operations: sign-in support, declined payment resolution, branch 1 sales only.</p>
+</section>
+<div class="row g-4">
+  <div class="col-lg-4"><div class="metric-card metric-purple"><h3>Active Sessions</h3><p class="metric" id="metricActive">0</p></div></div>
+  <div class="col-lg-4"><div class="metric-card metric-orange"><h3>Declined Payments</h3><p class="metric" id="metricDeclined">0</p></div></div>
+  <div class="col-lg-4"><div class="metric-card metric-green"><h3>Today Sales</h3><p class="metric" id="metricSales">N0</p></div></div>
+</div>
+<div class="row g-4 mt-1">
+  <div class="col-xl-6">
+    <div class="glass-card p-4 h-100">
+      <h3 class="mb-3">Quick Actions</h3>
+      <div class="quick-grid">
+        <button class="quick-btn"><i class="fa-solid fa-user-plus"></i> Assist New Signup</button>
+        <button class="quick-btn"><i class="fa-solid fa-right-to-bracket"></i> Resolve Login Issue</button>
+        <button class="quick-btn"><i class="fa-solid fa-credit-card"></i> Retry Payment</button>
+        <button class="quick-btn"><i class="fa-solid fa-file-invoice-dollar"></i> View Branch 1 Sales</button>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-6">
+    <div class="glass-card p-4 h-100">
+      <h3>Allowed Actions</h3>
+      <ul>
+        <li>Help users register/login</li>
+        <li>View branch 1 sales records</li>
+        <li>Handle branch 1 payment issues</li>
+      </ul>
+    </div>
+  </div>
+</div>
+<div class="glass-card p-4 mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="mb-0">Branch 1 Activity</h3>
+    <small class="text-light-emphasis">Latest operational updates</small>
+  </div>
+  <div class="activity-table-wrap">
+    <table class="activity-table">
+      <thead>
+        <tr>
+          <th>User</th>
+          <th>Station</th>
+          <th>Action</th>
+          <th>Amount</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="branchActivityBody"></tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

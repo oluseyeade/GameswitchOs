@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %}Available Games | GameSwitchOS{% endblock %}
+{% block content %}
+<section class="mb-4">
+  <h1 class="mb-3">Available Games</h1>
+  <p class="text-light-emphasis">Choose a game and continue to payment.</p>
+</section>
+<div class="row g-4">
+  {% for game in games %}
+  <div class="col-md-4">
+    <article class="game-card h-100">
+      <img src="{{ url_for('static', filename=game.cover_image or 'img/image2.jpg') }}" alt="{{ game.title }}">
+      <div class="p-3">
+        <h3 class="h5">{{ game.title }}</h3>
+        <p class="small text-light-emphasis">{{ game.description or 'Premium console experience with monitored branch sessions.' }}</p>
+        <div class="price-pill">N{{ game.price_per_hour }} / hour</div>
+      </div>
+    </article>
+  </div>
+  {% endfor %}
+</div>
+<div class="mt-4 d-flex gap-2 flex-wrap">
+  <a href="{{ url_for('user.payment') }}" class="btn btn-primary"><i class="fa-solid fa-credit-card"></i> Proceed to Payment</a>
+  <a href="{{ url_for('user.session_page') }}" class="btn btn-outline-light"><i class="fa-solid fa-clock"></i> View Session Timer</a>
+</div>
+{% endblock %}

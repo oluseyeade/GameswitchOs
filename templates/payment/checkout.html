@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block title %}Paystack Checkout | GameSwitchOS{% endblock %}
+{% block content %}
+<div class="row g-4 align-items-start">
+  <div class="col-lg-7">
+    <div class="glass-card p-4">
+      <h2 class="mb-2">Secure Checkout with Paystack</h2>
+      <p class="text-secondary mb-4">Your payment is securely processed through Paystack. Once your payment is verified, your gaming session is activated automatically, allowing you to start playing without delay.</p>
+
+      <form id="paystackCheckoutForm" class="vstack gap-3" novalidate>
+        <input type="hidden" id="csrfToken" value="{{ csrf_token }}">
+
+        <div>
+          <label for="gameSelect" class="form-label">Game</label>
+          <select id="gameSelect" class="form-select" required>
+            {% for game in games %}
+            <option value="{{ game.id }}" data-price="{{ game.price_per_hour }}">{{ game.title }} (N{{ game.price_per_hour }}/hr)</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label for="stationSelect" class="form-label">Gaming Station</label>
+            <select id="stationSelect" class="form-select" required>
+              <option value="station1">Station 1</option>
+              <option value="station2">Station 2</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label for="durationSelect" class="form-label">Duration</label>
+            <select id="durationSelect" class="form-select" required>
+              <option value="30">30 Minutes</option>
+              <option value="60" selected>60 Minutes</option>
+              <option value="90">90 Minutes</option>
+              <option value="120">120 Minutes</option>
+            </select>
+          </div>
+        </div>
+
+        <button id="initializeButton" type="submit" class="btn btn-primary">
+          <span class="btn-label">Proceed to Paystack</span>
+          <span class="spinner-border spinner-border-sm ms-2 d-none" id="initSpinner" role="status" aria-hidden="true"></span>
+        </button>
+      </form>
+
+      <div id="checkoutAlert" class="alert mt-3 d-none" role="alert" data-webhook-warning="{{ webhook_warning|default('', true)|e }}"></div>
+    </div>
+  </div>
+
+  <div class="col-lg-5">
+    <div class="glass-card p-4">
+      <h3 class="h5">History of Gaming</h3>
+      <div class="quote-rotator" id="gamingQuoteRotator" aria-live="polite">
+        <p class="mb-0 small text-white" id="gamingQuoteText"></p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/payment.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="admin-shell">
+  <aside class="admin-sidebar">
+    <div class="admin-logo">Game<span>SwitchOS</span></div>
+    <nav class="admin-menu">
+      <a href="{{ url_for('admin.admin1') }}" class="{% if request.endpoint == 'admin.admin1' %}active{% endif %}"><i class="fa-solid fa-building"></i> Admin 1</a>
+      <a href="{{ url_for('admin.admin2') }}" class="{% if request.endpoint == 'admin.admin2' %}active{% endif %}"><i class="fa-solid fa-building-user"></i> Admin 2</a>
+      <a href="{{ url_for('admin.superadmin') }}" class="{% if request.endpoint == 'admin.superadmin' %}active{% endif %}"><i class="fa-solid fa-user-shield"></i> Superadmin</a>
+      <a href="{{ url_for('admin.game_management') }}" class="{% if request.endpoint == 'admin.game_management' %}active{% endif %}"><i class="fa-solid fa-gamepad"></i> Game Management</a>
+      <a href="{{ url_for('user.available_games') }}"><i class="fa-solid fa-gamepad"></i> Games</a>
+      <a href="{{ url_for('user.session_page') }}"><i class="fa-solid fa-clock"></i> Sessions</a>
+      <a href="{{ url_for('user.payment') }}"><i class="fa-solid fa-credit-card"></i> Payments</a>
+    </nav>
+  </aside>
+
+  <section class="admin-main">
+    {% block admin_content %}{% endblock %}
+  </section>
+</div>
+{% endblock %}

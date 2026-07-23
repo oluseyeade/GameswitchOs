@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}Payment History | GameSwitchOS{% endblock %}
+{% block content %}
+<div class="glass-card p-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="h4 mb-0">Payment History</h2>
+    <a class="btn btn-sm btn-primary" href="{{ url_for('payments.checkout_page') }}">New Payment</a>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-dark table-striped align-middle">
+      <thead>
+        <tr>
+          <th>Reference</th>
+          <th>Status</th>
+          <th>Amount</th>
+          <th>Created</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in history %}
+        <tr>
+          <td>{{ row.reference }}</td>
+          <td>{{ row.status_label }}</td>
+          <td>N{{ (row.amount_kobo / 100)|round(2) }}</td>
+          <td>{{ row.created_at }}</td>
+          <td>
+            <a class="btn btn-sm btn-outline-light" href="{{ url_for('payments.payment_invoice', reference=row.reference) }}">Invoice</a>
+            <a class="btn btn-sm btn-outline-info" href="{{ url_for('payments.payment_result', reference=row.reference) }}">Status</a>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="5" class="text-center">No payments yet.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}Payment Pending | GameSwitchOS{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <div class="glass-card p-4 text-center">
+      <h2>Payment Pending Confirmation</h2>
+      <p class="text-secondary">Reference: <strong>{{ reference }}</strong></p>
+      <p>We are waiting for secure webhook confirmation before your session is activated.</p>
+      <div class="progress mb-3" role="progressbar" aria-label="Polling status">
+        <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 100%">Checking status...</div>
+      </div>
+      <p id="pendingStatusText" class="text-secondary mb-2">Waiting for secure confirmation...</p>
+      <div id="statusToastHolder" class="mt-3"></div>
+      <a id="retryPaymentLink" class="btn btn-outline-warning mt-2 d-none" href="{{ url_for('payments.checkout_page') }}">Retry Payment</a>
+      <a class="btn btn-outline-light mt-3" href="{{ url_for('payments.checkout_page') }}">Start Another Payment</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/payment.js') }}"></script>
+<script>
+  window.GS_PAYMENT_PENDING_REFERENCE = "{{ reference }}";
+</script>
+{% endblock %}

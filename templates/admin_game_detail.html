@@ -1,0 +1,72 @@
+{% extends 'admin_layout.html' %}
+{% block title %}Edit Game | GameSwitchOS{% endblock %}
+{% block admin_content %}
+<section class="mb-4">
+  <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+    <div>
+      <h1 class="mb-1">Edit Game</h1>
+      <p class="text-light-emphasis mb-0">Update catalog details while preserving the existing payment and session workflows.</p>
+    </div>
+    <a class="btn btn-outline-light" href="{{ url_for('admin.game_management') }}">Back to Games</a>
+  </div>
+</section>
+
+<div class="glass-card p-4">
+  <form method="post" action="{{ url_for('admin.game_detail', game_id=game.id) }}" enctype="multipart/form-data" class="row g-3">
+    <div class="col-md-6">
+      <label class="form-label">Game Name</label>
+      <input class="form-control" name="title" value="{{ game.title }}" required>
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">Slug</label>
+      <input class="form-control" name="slug" value="{{ game.slug }}" required>
+    </div>
+    <div class="col-12">
+      <label class="form-label">Description</label>
+      <textarea class="form-control" name="description" rows="3">{{ game.description or '' }}</textarea>
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">Hourly Price</label>
+      <input class="form-control" name="price_per_hour" type="number" min="0" step="0.01" value="{{ game.price_per_hour }}" required>
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">Category</label>
+      <input class="form-control" name="category" value="{{ game.category }}">
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">Console Type</label>
+      <input class="form-control" name="console_type" value="{{ game.console_type }}">
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">Status</label>
+      <select class="form-select" name="status">
+        <option value="active" {% if game.status == 'active' %}selected{% endif %}>Active</option>
+        <option value="inactive" {% if game.status == 'inactive' %}selected{% endif %}>Inactive</option>
+      </select>
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">Display Order</label>
+      <input class="form-control" name="display_order" type="number" value="{{ game.display_order }}">
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">Cover Image Path</label>
+      <input class="form-control" name="cover_image_path" value="{{ game.cover_image_path or game.image_path or '' }}">
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">Current Cover Preview</label>
+      <img src="{{ url_for('static', filename=game.cover_image or 'img/image2.jpg') }}" alt="{{ game.title }}" class="img-thumbnail" style="width:120px;height:120px;object-fit:cover;">
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">Replace Cover Image</label>
+      <input class="form-control" name="cover_image" type="file" accept="image/jpeg,image/png,image/webp">
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">Replace Banner Image</label>
+      <input class="form-control" name="banner_image" type="file" accept="image/jpeg,image/png,image/webp">
+    </div>
+    <div class="col-md-12">
+      <button class="btn btn-primary" type="submit">Save Changes</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

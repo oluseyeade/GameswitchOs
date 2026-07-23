@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block title %}Session Timer | GameSwitchOS{% endblock %}
+{% block content %}
+<div class="row g-4 justify-content-center">
+  <div class="col-lg-5">
+    <div class="glass-card p-4">
+      <h3 class="mb-3">Start Session</h3>
+      <form class="vstack gap-3" id="sessionStartForm">
+        <select class="form-select" id="sessionGame" required>
+          {% for game in games %}
+          <option value="{{ game.id }}">{{ game.title }} (N{{ game.price_per_hour }}/hr)</option>
+          {% else %}
+          <option value="">No active games available.</option>
+          {% endfor %}
+        </select>
+        <select class="form-select" id="sessionBranch" required>
+          <option value="branch1">Branch 1</option>
+          <option value="branch2">Branch 2</option>
+        </select>
+        <select class="form-select" id="sessionStation" required>
+          <option value="station1">Gaming Station 1 (Switch 1)</option>
+          <option value="station2">Gaming Station 2 (Switch 2)</option>
+        </select>
+        <select class="form-select" id="sessionDuration" required>
+          <option value="30">30 Minutes</option>
+          <option value="60" selected>60 Minutes</option>
+          <option value="120">120 Minutes</option>
+        </select>
+        <button type="submit" class="btn btn-primary">Start Gaming Session</button>
+      </form>
+      <div class="alert mt-3 mb-0 d-none" id="sessionStartResult"></div>
+    </div>
+
+    <div class="glass-card p-4 mt-4">
+      <h4 class="mb-3">Device Live Status</h4>
+      <p class="mb-2">Online: <strong id="deviceOnlineState">Unknown</strong></p>
+      <p class="mb-2">Switch 1: <strong id="switch1State">Unknown</strong></p>
+      <p class="mb-0">Switch 2: <strong id="switch2State">Unknown</strong></p>
+    </div>
+  </div>
+
+  <div class="col-lg-7">
+    <div class="glass-card p-4 text-center">
+      <h2>Active Session Timer</h2>
+      <div class="timer" id="timerValue">00:00</div>
+      <div class="d-flex gap-2 justify-content-center flex-wrap">
+        <button class="btn btn-outline-light" id="add5">+5 min</button>
+        <button class="btn btn-outline-light" id="minus5">-5 min</button>
+        <button class="btn btn-danger" id="stopSession">Stop Session</button>
+      </div>
+      <p class="small mt-3 mb-0" id="sessionStatus">No active session loaded.</p>
+    </div>
+  </div>
+</div>
+{% endblock %}

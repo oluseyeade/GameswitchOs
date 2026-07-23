@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}Payment Successful | GameSwitchOS{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <div class="glass-card p-4 text-center">
+      <h2 class="text-success">Payment Successful</h2>
+      <p class="text-secondary">Reference: <strong>{{ reference }}</strong></p>
+      <p>Your session is active. You can proceed to your gaming timer page.</p>
+      <div class="d-flex justify-content-center gap-2 mt-3">
+        <a class="btn btn-primary" href="{{ url_for('user.session_page') }}">Go To Session</a>
+        <a class="btn btn-outline-light" href="{{ url_for('payments.payment_invoice', reference=reference) }}">View Invoice</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
