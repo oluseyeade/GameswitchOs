@@ -4,11 +4,21 @@ from urllib.parse import quote_plus
 
 import pymysql
 from sqlalchemy import create_engine, text
+from sqlalchemy.engine import make_url
 
 from extensions import db
 
 
 def build_database_uri() -> str:
+    database_url = os.getenv("DATABASE_URL", "").strip()
+    if database_url:
+        url = make_url(database_url)
+        if url.drivername == "mysql":
+            url = url.set(drivername="mysql+pymysql")
+        if url.drivername != "mysql+pymysql":
+            raise RuntimeError("DATABASE_URL must be a MySQL URL using mysql:// or mysql+pymysql://")
+        return str(url)
+
     settings = get_connection_settings()
     if settings["driver"] != "mysql+pymysql":
         raise RuntimeError("DATABASE_DRIVER must be mysql+pymysql; MySQL is the only supported database.")
@@ -24,6 +34,21 @@ def build_database_uri() -> str:
 
 
 def get_connection_settings() -> dict:
+    database_url = os.getenv("DATABASE_URL", "").strip()
+    if database_url:
+        url = make_url(database_url)
+        driver = url.drivername or "mysql+pymysql"
+        if driver == "mysql":
+            driver = "mysql+pymysql"
+        return {
+            "driver": driver,
+            "host": url.host or "127.0.0.1",
+            "port": url.port or 3306,
+            "database": url.database or "",
+            "user": url.username or "",
+            "password": url.password or "",
+        }
+
     return {
         "driver": os.getenv("DATABASE_DRIVER", "mysql+pymysql").strip(),
         "host": os.getenv("MYSQL_HOST", "127.0.0.1").strip(),
