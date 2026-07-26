@@ -3,20 +3,25 @@ from __future__ import annotations
 
 import argparse
 from pathlib import Path
-from urllib.parse import quote_plus
 
 from dotenv import load_dotenv
 from sqlalchemy.engine import make_url
 
-from database.connector import create_database_if_missing, load_schema, verify_sqlalchemy_connection
+from pkg.database.connector import (
+    create_database_if_missing,
+    load_schema,
+    normalize_mysql_scheme,
+    verify_sqlalchemy_connection,
+)
 
 DEFAULT_ENV_FILE = Path(".env")
 
 
 def parse_database_url(database_url: str) -> dict[str, str | int]:
-    url = make_url(database_url)
+    normalized_url = normalize_mysql_scheme(database_url)
+    url = make_url(normalized_url)
     scheme = url.drivername or ""
-    if scheme == "mysql":
+    if scheme in ("mysql", "mysqlconnector", "mysqldb"):
         url = url.set(drivername="mysql+pymysql")
         scheme = "mysql+pymysql"
 

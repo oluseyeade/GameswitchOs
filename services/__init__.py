@@ -1,5 +1,6 @@
-from .event_bus import EventBus
-from .tuya_pulsar_consumer import TuyaPulsarConsumer
-from .tuya_service import TuyaAPIError, TuyaService
+"""
+Root services re-export shim pointing to pkg.services.
+"""
+from pkg.services import EventBus, TuyaAPIError, TuyaPulsarConsumer, TuyaService, build_tuya_service_from_env
 
-__all__ = ["EventBus", "TuyaAPIError", "TuyaPulsarConsumer", "TuyaService"]
+__all__ = ["EventBus", "TuyaAPIError", "TuyaPulsarConsumer", "TuyaService", "build_tuya_service_from_env"]

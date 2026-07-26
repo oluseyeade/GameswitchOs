@@ -1,5 +1,7 @@
-from .payment import Payment, PaymentLog
-from .session import GamingStation, PaymentGamingSession, PaymentUser
+"""
+Re-export shim from pkg.app.models.
+"""
+from pkg.app.models import GamingStation, Payment, PaymentGamingSession, PaymentLog, PaymentUser
 
 __all__ = [
     "Payment",

@@ -1,25 +1,25 @@
-import logging,os,json
+import json
+import logging
+import os
 from datetime import datetime
-
-
 
 from dotenv import load_dotenv
 from flask import Flask, redirect, url_for
 from werkzeug.security import generate_password_hash
 
-from auth_helpers import (
+from pkg.app.models import GamingStation, PaymentGamingSession, PaymentLog, PaymentUser
+from pkg.app.payment import create_payment_blueprint
+from pkg.auth_helpers import (
     current_user,
     get_redirect_for_role,
     login_required,
     role_required,
     user_can_manage_branch,
 )
-from config import Config
-from database.connector import init_database
-from extensions import db, migrate
-from app.models import GamingStation, PaymentGamingSession, PaymentLog, PaymentUser
-from app.payment import create_payment_blueprint
-from models import (
+from pkg.config import Config
+from pkg.database.connector import init_database
+from pkg.extensions import db, migrate
+from pkg.models import (
     AuditLog,
     Game,
     GamingSession,
@@ -32,9 +32,9 @@ from models import (
     TuyaEventLog,
     User,
 )
-from routes.admin_routes import create_admin_blueprints
-from routes.user_routes import create_user_blueprints
-from services import EventBus, TuyaPulsarConsumer, TuyaService
+from pkg.routes.admin_routes import create_admin_blueprints
+from pkg.routes.user_routes import create_user_blueprints
+from pkg.services import EventBus, TuyaPulsarConsumer, TuyaService
 
 load_dotenv()
 
@@ -234,8 +234,6 @@ payments_bp = create_payment_blueprint(
     event_bus=event_bus,
 )
 app.register_blueprint(payments_bp)
-
-
 
 
 if __name__ == "__main__":

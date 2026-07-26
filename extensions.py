@@ -1,6 +1,6 @@
-from flask_migrate import Migrate
-from flask_sqlalchemy import SQLAlchemy
+"""
+Root extensions re-export shim pointing to pkg.extensions.
+"""
+from pkg.extensions import db, migrate
 
-
-db = SQLAlchemy()
-migrate = Migrate()
+__all__ = ["db", "migrate"]

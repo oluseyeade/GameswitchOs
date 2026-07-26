@@ -1,0 +1,3 @@
+"""
+GameswitchOS MVP package.
+"""
