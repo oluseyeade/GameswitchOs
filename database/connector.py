@@ -48,7 +48,11 @@ def build_database_uri() -> str:
 
 
 def get_connection_settings() -> dict:
-    database_url = os.getenv("DATABASE_URL", "").strip()
+    database_url = (
+    os.getenv("SQLALCHEMY_DATABASE_URI")
+    or os.getenv("DATABASE_URL")
+    or ""
+).strip()
     if database_url:
         url = make_url(database_url)
         driver = url.drivername or "mysql+pymysql"
@@ -131,7 +135,8 @@ def verify_sqlalchemy_connection(database_uri: str | None = None) -> dict[str, s
 
 
 def init_database(app):
-    app.config.setdefault("SQLALCHEMY_DATABASE_URI", build_database_uri())
+    if not app.config.get("SQLALCHEMY_DATABASE_URI"):
+        app.config["SQLALCHEMY_DATABASE_URI"] = build_database_uri()
     app.config.setdefault("SQLALCHEMY_TRACK_MODIFICATIONS", False)
     app.config.setdefault(
         "SQLALCHEMY_ENGINE_OPTIONS",
