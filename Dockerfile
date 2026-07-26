@@ -3,6 +3,7 @@ FROM python:3.12-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
+ENV TMPDIR=/tmp
 
 WORKDIR /app
 
@@ -15,9 +16,11 @@ COPY . ./
 RUN mkdir -p /app/static/uploads/games
 
 RUN addgroup --system app && adduser --system --ingroup app app
+RUN chown -R app:app /app
+
 USER app
 
 ENV PORT=5000
 EXPOSE 5000
 
-CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:${PORT} app:app --workers 2 --threads 2"]
+CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:${PORT:-5000} app:app --workers 2 --threads 2"]

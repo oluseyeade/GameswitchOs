@@ -159,6 +159,16 @@ def seed_default_data() -> None:
     db.session.commit()
 
 
+# Automatically initialize database schema & baseline seed data on startup
+with app.app_context():
+    try:
+        db.create_all()
+        seed_default_data()
+        logging.info("Database tables and baseline seed data initialized successfully.")
+    except Exception as exc:
+        logging.warning("Database startup initialization deferred: %s", exc)
+
+
 def money(value) -> float:
     return float(value or 0)
 
