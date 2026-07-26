@@ -10,7 +10,10 @@ load_dotenv()
 
 class Config:
     SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key")
-    SQLALCHEMY_DATABASE_URI = build_database_uri()
+    SQLALCHEMY_DATABASE_URI = os.getenv(
+    "MYSQL_DATABASE",
+    "mysql+mysqlconnector://root@localhost/gameswitchos_demo"
+)
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ENGINE_OPTIONS = {
         "pool_pre_ping": True,
