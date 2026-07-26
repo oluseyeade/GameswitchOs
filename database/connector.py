@@ -10,15 +10,29 @@ from extensions import db
 
 
 def build_database_uri() -> str:
-    database_url = os.getenv("DATABASE_URL", "").strip()
-    if database_url:
-        url = make_url(database_url)
-        if url.drivername == "mysql":
-            url = url.set(drivername="mysql+pymysql")
-        if url.drivername != "mysql+pymysql":
-            raise RuntimeError("DATABASE_URL must be a MySQL URL using mysql:// or mysql+pymysql://")
-        return str(url)
+    database_url = (
+        os.getenv("SQLALCHEMY_DATABASE_URI")
+        or os.getenv("DATABASE_URL")
+        or ""
+    ).strip()
 
+    if database_url:
+        # Railway usually provides mysql://
+        if database_url.startswith("mysql://"):
+            database_url = database_url.replace(
+                "mysql://",
+                "mysql+pymysql://",
+                1,
+            )
+
+        url = make_url(database_url)
+
+        if url.drivername != "mysql+pymysql":
+            raise RuntimeError(
+                "Database URL must use mysql+pymysql."
+            )
+
+        return str(url)
     settings = get_connection_settings()
     if settings["driver"] != "mysql+pymysql":
         raise RuntimeError("DATABASE_DRIVER must be mysql+pymysql; MySQL is the only supported database.")
@@ -50,13 +64,13 @@ def get_connection_settings() -> dict:
         }
 
     return {
-        "driver": os.getenv("DATABASE_DRIVER", "mysql+pymysql").strip(),
-        "host": os.getenv("MYSQL_HOST", "127.0.0.1").strip(),
-        "port": int(os.getenv("MYSQL_PORT", "3306").strip()),
-        "database": os.getenv("MYSQL_DATABASE", "gameswitchos_demo").strip(),
-        "user": os.getenv("MYSQL_USER", "root").strip(),
-        "password": os.getenv("MYSQL_PASSWORD", ""),
-    }
+    "driver": "mysql+pymysql",
+    "host": os.getenv("MYSQLHOST") or os.getenv("MYSQL_HOST", "127.0.0.1"),
+    "port": int(os.getenv("MYSQLPORT") or os.getenv("MYSQL_PORT", "3306")),
+    "database": os.getenv("MYSQLDATABASE") or os.getenv("MYSQL_DATABASE", ""),
+    "user": os.getenv("MYSQLUSER") or os.getenv("MYSQL_USER", "root"),
+    "password": os.getenv("MYSQLPASSWORD") or os.getenv("MYSQL_PASSWORD", ""),
+}
 
 
 def create_database_if_missing() -> str:
