@@ -11,7 +11,7 @@ load_dotenv()
 class Config:
     SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key")
     SQLALCHEMY_DATABASE_URI = os.getenv(
-    "MYSQL_DATABASE",
+    "SQLALCHEMY_DATABASE_URI",
     "mysql+mysqlconnector://root@localhost/gameswitchos_demo"
 )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
