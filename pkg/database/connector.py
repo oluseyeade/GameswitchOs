@@ -30,19 +30,24 @@ def build_database_uri() -> str:
     """Build and validate a SQLAlchemy database URI using PyMySQL.
     
     Priority order:
-    1. Railway's explicit production database connection strings:
-       MYSQL_URL, DATABASE_URL, MYSQLURL, MYSQLPRIVATEURL, DATABASE_PUBLIC_URL
-    2. Railway's individual environment variables:
-       MYSQLHOST + MYSQLPASSWORD + MYSQLUSER + MYSQLDATABASE
+    1. Railway / Cloud environment database URLs:
+       MYSQL_URL, DATABASE_URL, MYSQLURL, MYSQLPRIVATEURL, MYSQL_PRIVATE_URL,
+       DATABASE_PRIVATE_URL, DATABASE_PUBLIC_URL, MYSQL_PUBLIC_URL, RAILWAY_MYSQL_URL
+    2. Individual MySQL environment variables:
+       (MYSQLHOST / MYSQL_HOST / DB_HOST / MYSQL_HOSTNAME) + (MYSQLPASSWORD / MYSQL_PASSWORD / DB_PASSWORD)
     3. Explicit SQLALCHEMY_DATABASE_URI
-    4. Local development default settings
+    4. Local development default settings (127.0.0.1)
     """
     database_url = (
         os.getenv("MYSQL_URL")
         or os.getenv("DATABASE_URL")
         or os.getenv("MYSQLURL")
         or os.getenv("MYSQLPRIVATEURL")
+        or os.getenv("MYSQL_PRIVATE_URL")
+        or os.getenv("DATABASE_PRIVATE_URL")
         or os.getenv("DATABASE_PUBLIC_URL")
+        or os.getenv("MYSQL_PUBLIC_URL")
+        or os.getenv("RAILWAY_MYSQL_URL")
         or ""
     ).strip()
 
@@ -59,14 +64,40 @@ def build_database_uri() -> str:
 
         return str(url)
 
-    # Check Railway's individual MySQL variables
-    host = os.getenv("MYSQLHOST") or os.getenv("MYSQL_HOST")
-    password = os.getenv("MYSQLPASSWORD") or os.getenv("MYSQL_PASSWORD")
-    if host and password is not None:
-        user = quote_plus(os.getenv("MYSQLUSER") or os.getenv("MYSQL_USER") or "root")
-        pass_encoded = quote_plus(password)
-        port = int(os.getenv("MYSQLPORT") or os.getenv("MYSQL_PORT") or "3306")
-        database = quote_plus(os.getenv("MYSQLDATABASE") or os.getenv("MYSQL_DATABASE") or "railway")
+    # Check individual MySQL environment variables
+    host = (
+        os.getenv("MYSQLHOST")
+        or os.getenv("MYSQL_HOST")
+        or os.getenv("DB_HOST")
+        or os.getenv("MYSQL_HOSTNAME")
+    )
+    password = (
+        os.getenv("MYSQLPASSWORD")
+        or os.getenv("MYSQL_PASSWORD")
+        or os.getenv("DB_PASSWORD")
+    )
+
+    if host:
+        user = quote_plus(
+            os.getenv("MYSQLUSER")
+            or os.getenv("MYSQL_USER")
+            or os.getenv("DB_USER")
+            or "root"
+        )
+        pass_encoded = quote_plus(password or "")
+        port = int(
+            os.getenv("MYSQLPORT")
+            or os.getenv("MYSQL_PORT")
+            or os.getenv("DB_PORT")
+            or "3306"
+        )
+        database = quote_plus(
+            os.getenv("MYSQLDATABASE")
+            or os.getenv("MYSQL_DATABASE")
+            or os.getenv("DB_NAME")
+            or os.getenv("DB_DATABASE")
+            or "railway"
+        )
         return f"mysql+pymysql://{user}:{pass_encoded}@{host}:{port}/{database}"
 
     # Check explicit SQLALCHEMY_DATABASE_URI
@@ -78,14 +109,20 @@ def build_database_uri() -> str:
             url = url.set(drivername="mysql+pymysql")
         return str(url)
 
+    import logging
+    logging.warning(
+        "No production MySQL environment variables (MYSQL_URL, DATABASE_URL, or MYSQLHOST) were detected. "
+        "Defaulting connection to local 127.0.0.1:3306."
+    )
+
     # Local fallback
     settings = get_connection_settings()
     user = quote_plus(settings["user"])
     password = quote_plus(settings["password"])
-    host = settings["host"]
-    port = settings["port"]
-    database = quote_plus(settings["database"])
-    return f"mysql+pymysql://{user}:{password}@{host}:{port}/{database}"
+    host_str = settings["host"]
+    port_int = settings["port"]
+    database_str = quote_plus(settings["database"])
+    return f"mysql+pymysql://{user}:{password}@{host_str}:{port_int}/{database_str}"
 
 
 def get_connection_settings() -> dict:
@@ -94,7 +131,11 @@ def get_connection_settings() -> dict:
         or os.getenv("DATABASE_URL")
         or os.getenv("MYSQLURL")
         or os.getenv("MYSQLPRIVATEURL")
+        or os.getenv("MYSQL_PRIVATE_URL")
+        or os.getenv("DATABASE_PRIVATE_URL")
         or os.getenv("DATABASE_PUBLIC_URL")
+        or os.getenv("MYSQL_PUBLIC_URL")
+        or os.getenv("RAILWAY_MYSQL_URL")
         or os.getenv("SQLALCHEMY_DATABASE_URI")
         or ""
     ).strip()
@@ -116,11 +157,11 @@ def get_connection_settings() -> dict:
 
     return {
         "driver": "mysql+pymysql",
-        "host": os.getenv("MYSQLHOST") or os.getenv("MYSQL_HOST", "127.0.0.1"),
-        "port": int(os.getenv("MYSQLPORT") or os.getenv("MYSQL_PORT", "3306")),
-        "database": os.getenv("MYSQLDATABASE") or os.getenv("MYSQL_DATABASE", "gameswitchos_demo"),
-        "user": os.getenv("MYSQLUSER") or os.getenv("MYSQL_USER", "root"),
-        "password": os.getenv("MYSQLPASSWORD") or os.getenv("MYSQL_PASSWORD", ""),
+        "host": os.getenv("MYSQLHOST") or os.getenv("MYSQL_HOST") or os.getenv("DB_HOST") or "127.0.0.1",
+        "port": int(os.getenv("MYSQLPORT") or os.getenv("MYSQL_PORT") or os.getenv("DB_PORT") or "3306"),
+        "database": os.getenv("MYSQLDATABASE") or os.getenv("MYSQL_DATABASE") or os.getenv("DB_NAME") or "gameswitchos_demo",
+        "user": os.getenv("MYSQLUSER") or os.getenv("MYSQL_USER") or os.getenv("DB_USER") or "root",
+        "password": os.getenv("MYSQLPASSWORD") or os.getenv("MYSQL_PASSWORD") or os.getenv("DB_PASSWORD") or "",
     }
 
 
