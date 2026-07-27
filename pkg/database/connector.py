@@ -29,16 +29,17 @@ def normalize_mysql_scheme(url_str: str) -> str:
 def build_database_uri() -> str:
     """Build and validate a SQLAlchemy database URI using PyMySQL.
     
-    Checks environment variables provided by Railway and standard deployments:
-    - SQLALCHEMY_DATABASE_URI
-    - DATABASE_URL
-    - MYSQL_URL / MYSQLURL / MYSQLPRIVATEURL / DATABASE_PUBLIC_URL
-    or constructs from individual MYSQLHOST, MYSQLPORT, MYSQLDATABASE, MYSQLUSER, MYSQLPASSWORD settings.
+    Priority order:
+    1. Railway's explicit production database connection strings:
+       MYSQL_URL, DATABASE_URL, MYSQLURL, MYSQLPRIVATEURL, DATABASE_PUBLIC_URL
+    2. Railway's individual environment variables:
+       MYSQLHOST + MYSQLPASSWORD + MYSQLUSER + MYSQLDATABASE
+    3. Explicit SQLALCHEMY_DATABASE_URI
+    4. Local development default settings
     """
     database_url = (
-        os.getenv("SQLALCHEMY_DATABASE_URI")
+        os.getenv("MYSQL_URL")
         or os.getenv("DATABASE_URL")
-        or os.getenv("MYSQL_URL")
         or os.getenv("MYSQLURL")
         or os.getenv("MYSQLPRIVATEURL")
         or os.getenv("DATABASE_PUBLIC_URL")
@@ -48,8 +49,6 @@ def build_database_uri() -> str:
     if database_url:
         database_url = normalize_mysql_scheme(database_url)
         url = make_url(database_url)
-
-        # Handle case where scheme driver was set to something other than mysql+pymysql
         if url.drivername in ("mysql", "mysqlconnector", "mysqldb"):
             url = url.set(drivername="mysql+pymysql")
 
@@ -60,12 +59,27 @@ def build_database_uri() -> str:
 
         return str(url)
 
-    settings = get_connection_settings()
-    if settings["driver"] != "mysql+pymysql":
-        raise RuntimeError("DATABASE_DRIVER must be mysql+pymysql; MySQL is the only supported database.")
-    if not settings["database"]:
-        raise RuntimeError("MYSQL_DATABASE must be configured.")
+    # Check Railway's individual MySQL variables
+    host = os.getenv("MYSQLHOST") or os.getenv("MYSQL_HOST")
+    password = os.getenv("MYSQLPASSWORD") or os.getenv("MYSQL_PASSWORD")
+    if host and password is not None:
+        user = quote_plus(os.getenv("MYSQLUSER") or os.getenv("MYSQL_USER") or "root")
+        pass_encoded = quote_plus(password)
+        port = int(os.getenv("MYSQLPORT") or os.getenv("MYSQL_PORT") or "3306")
+        database = quote_plus(os.getenv("MYSQLDATABASE") or os.getenv("MYSQL_DATABASE") or "railway")
+        return f"mysql+pymysql://{user}:{pass_encoded}@{host}:{port}/{database}"
 
+    # Check explicit SQLALCHEMY_DATABASE_URI
+    database_url = os.getenv("SQLALCHEMY_DATABASE_URI", "").strip()
+    if database_url:
+        database_url = normalize_mysql_scheme(database_url)
+        url = make_url(database_url)
+        if url.drivername in ("mysql", "mysqlconnector", "mysqldb"):
+            url = url.set(drivername="mysql+pymysql")
+        return str(url)
+
+    # Local fallback
+    settings = get_connection_settings()
     user = quote_plus(settings["user"])
     password = quote_plus(settings["password"])
     host = settings["host"]
@@ -76,12 +90,12 @@ def build_database_uri() -> str:
 
 def get_connection_settings() -> dict:
     database_url = (
-        os.getenv("SQLALCHEMY_DATABASE_URI")
+        os.getenv("MYSQL_URL")
         or os.getenv("DATABASE_URL")
-        or os.getenv("MYSQL_URL")
         or os.getenv("MYSQLURL")
         or os.getenv("MYSQLPRIVATEURL")
         or os.getenv("DATABASE_PUBLIC_URL")
+        or os.getenv("SQLALCHEMY_DATABASE_URI")
         or ""
     ).strip()
 
@@ -104,7 +118,7 @@ def get_connection_settings() -> dict:
         "driver": "mysql+pymysql",
         "host": os.getenv("MYSQLHOST") or os.getenv("MYSQL_HOST", "127.0.0.1"),
         "port": int(os.getenv("MYSQLPORT") or os.getenv("MYSQL_PORT", "3306")),
-        "database": os.getenv("MYSQLDATABASE") or os.getenv("MYSQL_DATABASE", ""),
+        "database": os.getenv("MYSQLDATABASE") or os.getenv("MYSQL_DATABASE", "gameswitchos_demo"),
         "user": os.getenv("MYSQLUSER") or os.getenv("MYSQL_USER", "root"),
         "password": os.getenv("MYSQLPASSWORD") or os.getenv("MYSQL_PASSWORD", ""),
     }
@@ -169,11 +183,8 @@ def verify_sqlalchemy_connection(database_uri: str | None = None) -> dict[str, s
 
 
 def init_database(app):
-    # Ensure URI is normalized to use mysql+pymysql
-    current_uri = app.config.get("SQLALCHEMY_DATABASE_URI", "")
-    if not current_uri or "mysql+mysqlconnector" in current_uri or "mysql://" in current_uri:
-        app.config["SQLALCHEMY_DATABASE_URI"] = build_database_uri()
-
+    # Ensure URI is built dynamically and normalized to use mysql+pymysql
+    app.config["SQLALCHEMY_DATABASE_URI"] = build_database_uri()
     app.config.setdefault("SQLALCHEMY_TRACK_MODIFICATIONS", False)
     app.config.setdefault(
         "SQLALCHEMY_ENGINE_OPTIONS",

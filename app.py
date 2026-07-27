@@ -4,7 +4,7 @@ import os
 from datetime import datetime
 
 from dotenv import load_dotenv
-from flask import Flask, redirect, url_for
+from flask import Flask, jsonify, redirect, url_for
 from werkzeug.security import generate_password_hash
 
 from pkg.app.models import GamingStation, PaymentGamingSession, PaymentLog, PaymentUser
@@ -176,6 +176,11 @@ def money(value) -> float:
 @app.context_processor
 def inject_auth_user():
     return {"auth_user": current_user()}
+
+
+@app.route("/health")
+def health():
+    return jsonify({"status": "ok", "service": "gameswitchos"}), 200
 
 
 @app.route("/")
